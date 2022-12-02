@@ -7,14 +7,11 @@ import (
 	"github.com/Goscord/goscord"
 	"github.com/Goscord/goscord/gateway"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"os"
-)
-
-var (
-	client *gateway.Session
-	Config *config.Config
-	cmdMgr *command.CommandManager
+	"time"
 )
 
 func main() {
@@ -22,19 +19,56 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Setup database
 	databaseUrl := os.Getenv("DATABASE_URL")
+	db, err := gorm.Open(postgres.Open(databaseUrl), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// Load envionment variables :
-	godotenv.Load()
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	Config, err = config.GetConfig()
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	log.Print("Migrating Database")
+	db.AutoMigrate(&GuildSettings{})
+	db.AutoMigrate(&LeaderboardEntry{})
+
+	// Config stuffs
+	Config, err := config.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Create client instance :
-	client = goscord.New(&gateway.Options{
+	client := goscord.New(&gateway.Options{
 		Token:   os.Getenv("BOT_TOKEN"),
-		Intents: gateway.IntentGuilds | gateway.IntentGuildMessages | gateway.IntentGuildMembers,
+		Intents: gateway.IntentGuilds | gateway.IntentGuildMembers,
 	})
+
+	cmdMgr := command.NewCommandManager(client, Config)
+
+	err = client.On("ready", event.OnReady(client, Config, cmdMgr))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = client.On("interactionCreate", cmdMgr.Handler(client, Config))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Login client :
+	if err := client.Login(); err != nil {
+		log.Fatal(err)
+	}
+
+	// Keep bot running :
+	select {}
 }
