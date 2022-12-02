@@ -1,24 +1,26 @@
 package main
 
 import (
+	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/gateway"
 	"time"
 )
 
 // Bot database model
 type GuildSettings struct {
-	ID           uint64
+	ID           uint64 `gorm:"primaryKey"`
 	Name         string // A cache to make database navigation easier
 	SessionKey   string
 	BoardCode    string
-	LastPollTime time.Time
+	LastPollTime time.Time `gorm:"index"`
 }
 
 type LeaderboardEntry struct {
-	Name  string
-	Id    uint
+	Name  string `gorm:"primaryKey"`
+	Id    uint   `gorm:"primaryKey"`
 	Score uint
 	Stars uint
-	Event string
+	Event string `gorm:"index"`
 }
 
 // Api structs
@@ -32,4 +34,29 @@ type ApiMember struct {
 type ApiLeaderboard struct {
 	Event   string      `json:"event"`
 	Members []ApiMember `json:"members"`
+}
+
+type Context struct {
+	client      *gateway.Session
+	interaction *discord.Interaction
+}
+
+type Command interface {
+	Name() string
+	Description() string
+	Category() string
+	Options() []*discord.ApplicationCommandOption
+	Execute(ctx *Context) bool
+}
+
+func Register(cmd Command, client *gateway.Session, commands map[string]Command) {
+	appCmd := &discord.ApplicationCommand{
+		Name:        cmd.Name(),
+		Type:        discord.ApplicationCommandChat,
+		Description: cmd.Description(),
+		Options:     cmd.Options(),
+	}
+
+	client.Application.RegisterCommand(client.Me().Id, "", appCmd)
+	commands[cmd.Name()] = cmd
 }
