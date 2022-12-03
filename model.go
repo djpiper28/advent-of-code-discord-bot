@@ -80,7 +80,7 @@ func SendDatabaseError(ctx *Context) {
 	ctx.client.Interaction.CreateResponse(ctx.interaction.Id,
 		ctx.interaction.Token,
 		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
-			Flags: discord.MessageFlagUrgent})
+			Flags: discord.MessageFlagEphemeral})
 }
 
 func SendPermissionsError(ctx *Context) {
@@ -93,5 +93,5 @@ func SendPermissionsError(ctx *Context) {
 	ctx.client.Interaction.CreateResponse(ctx.interaction.Id,
 		ctx.interaction.Token,
 		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
-			Flags: discord.MessageFlagUrgent})
+			Flags: discord.MessageFlagEphemeral})
 }
