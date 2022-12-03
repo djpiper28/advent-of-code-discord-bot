@@ -10,21 +10,21 @@ import (
 
 // Bot database model
 type GuildSettings struct {
-	ID           string `gorm:"primaryKey"`
-	SessionKey   string
-	BoardCode    string
-	Year         string
-	LastPollTime time.Time `gorm:"index"`
+	ID         string `gorm:"primaryKey"`
+	SessionKey string
+	BoardCode  string
+	Year       string
 }
 
 type LeaderboardEntry struct {
-	PK    string `gorm:"primaryKey"`
-	Name  string
-	ID    int
-	Score int
-	Stars int
-	Event string    `gorm:"index"`
-	Time  time.Time `gorm:"index"`
+	PK        string `gorm:"primaryKey"`
+	Name      string
+	ID        int
+	Score     int
+	Stars     int
+	Event     string    `gorm:"index"`
+	Time      time.Time `gorm:"index"`
+	BoardCode string    `gorm:"index"`
 }
 
 /*

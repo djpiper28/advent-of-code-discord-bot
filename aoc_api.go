@@ -85,17 +85,22 @@ func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	ret := make([]LeaderboardEntry, 0)
 	for _, val := range rawret.Members {
 		ret = append(ret, LeaderboardEntry{
-			Time:  time.Now(),
-			Stars: val.Stars,
-			Score: val.Score,
-			ID:    val.ID,
-			Name:  val.Name,
-			Event: rawret.Event,
-			PK:    uuid.New().String(),
+			Time:      time.Now(),
+			Stars:     val.Stars,
+			Score:     val.Score,
+			ID:        val.ID,
+			Name:      val.Name,
+			Event:     rawret.Event,
+			PK:        uuid.New().String(),
+			BoardCode: gs.BoardCode,
 		})
 	}
 
 	// Insert the new data
 	err = db.Create(ret).Error
 	return ret, err
+}
+
+func UpdateThread() {
+
 }
