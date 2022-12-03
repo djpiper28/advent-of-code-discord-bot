@@ -82,3 +82,16 @@ func SendDatabaseError(ctx *Context) {
 		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
 			Flags: discord.MessageFlagUrgent})
 }
+
+func SendPermissionsError(ctx *Context) {
+	e := embed.NewEmbedBuilder()
+
+	e.SetTitle("This Command Requires Administrator Permissions To Run")
+	ThemeEmbed(e, ctx)
+
+	// Send response
+	ctx.client.Interaction.CreateResponse(ctx.interaction.Id,
+		ctx.interaction.Token,
+		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
+			Flags: discord.MessageFlagUrgent})
+}

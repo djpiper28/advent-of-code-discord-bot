@@ -47,6 +47,11 @@ const SESSION_KEY_BLOCK_COUNT = 4
 const NON_REDACTED_CHAR_COUNT = 4
 
 func (c *SetupCommand) Execute(ctx *Context) bool {
+	if ctx.interaction.Member.Permissions&discord.BitwisePermissionFlagAdministrator == 0 {
+		SendPermissionsError(ctx)
+		return false
+	}
+
 	sessionkey := ctx.interaction.Data.Options[0].String()
 	leaderboardurl := ctx.interaction.Data.Options[1].String()
 
@@ -96,7 +101,7 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 	}
 
 	e := embed.NewEmbedBuilder()
-  message := fmt.Sprintf("**Reconfigured by:** <@%s>\n**Session key:** %s\n**Leaderboard Code:** [%s](%s)",
+	message := fmt.Sprintf("**Reconfigured by:** <@%s>\n**Session key:** %s\n**Leaderboard Code:** [%s](%s)",
 		ctx.interaction.Member.User.Id,
 		sessionkey_redacted,
 		leaderboardcode)
