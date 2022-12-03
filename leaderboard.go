@@ -43,14 +43,14 @@ func (c *LeaderboardCommand) Execute(ctx *Context) bool {
 	}
 
 	sort.Slice(entries, func(a int, b int) bool {
-		return entries[a].Stars > entries[b].Stars
+		return entries[a].Score > entries[b].Score
 	})
 
 	e := embed.NewEmbedBuilder()
 	message := ""
 
 	for _, entry := range entries {
-		message += fmt.Sprintf("%02d :trophy: %02d :star: **%s**\n",
+		message += fmt.Sprintf("%d :trophy: %d :star: **%s**\n",
 			entry.Score,
 			entry.Stars,
 			entry.Name)
