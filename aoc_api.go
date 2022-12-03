@@ -40,10 +40,23 @@ func (jar *Jar) Cookies(u *url.URL) []*http.Cookie {
 	return jar.cookies[u.Host]
 }
 
-// / This will update a leaderboard and, return the (inserted) leadboard entry
-func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
-	// TODO: Return cached value if it is less than 15 minutes old. Respecting the AOC api guides is nice!
+func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
+	db := db.Model(&LeaderboardEntry{})
+	fifteenMinsAgo := time.Now().Add(-15 * time.Minute)
 
+	var ret []LeaderboardEntry
+  db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time 
+    FROM leaderboard_entries
+    WHERE board_code = ? AND time >= ? 
+    ORDER BY board_code, id, time DESC;`, gs.BoardCode, fifteenMinsAgo).Scan(&ret)
+	if db.Error != nil {
+		return nil, db.Error
+	}
+
+	return ret, nil
+}
+
+func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	url_s := fmt.Sprintf("https://adventofcode.com/%s/leaderboard/private/view/%s.json",
 		gs.Year,
 		gs.BoardCode)
@@ -101,6 +114,25 @@ func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	return ret, err
 }
 
-func UpdateThread() {
+// / This will update a leaderboard and, return the (inserted) leadboard entry
+func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
+	// Get cache
+	cache, err := getMostRecentEntries(gs)
+	if err != nil {
+		return []LeaderboardEntry{}, err
+	}
 
+	// Cache was found
+	if len(cache) != 0 {
+		return cache, nil
+	}
+
+	// No cache was found
+  log.Print("No cache was found")
+	return updateLeaderBoard(gs)
+}
+
+func UpdateThread() {
+	// Fetch all unique boards, then update them
+	// TODO: this
 }

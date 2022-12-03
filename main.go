@@ -81,7 +81,7 @@ func main() {
 			Register(commandsList[i], client, commands)
 		}
 
-		err = client.SetActivity(&discord.Activity{Name: "/help", Type: discord.ActivityListening})
+		err = client.SetActivity(&discord.Activity{Name: "/setup or /aocrank", Type: discord.ActivityListening})
 		if err != nil {
 			log.Print(err)
 		}
