@@ -13,16 +13,26 @@ type GuildSettings struct {
 	ID           string `gorm:"primaryKey"`
 	SessionKey   string
 	BoardCode    string
+	Year         string
 	LastPollTime time.Time `gorm:"index"`
 }
 
 type LeaderboardEntry struct {
-	Name  string `gorm:"primaryKey"`
-	Id    uint   `gorm:"primaryKey"`
-	Score uint
-	Stars uint
-	Event string `gorm:"index"`
+	PK    string `gorm:"primaryKey"`
+	Name  string
+	ID    int
+	Score int
+	Stars int
+	Event string    `gorm:"index"`
+	Time  time.Time `gorm:"index"`
 }
+
+/*
+type ApiCompletionDayLevel struct {
+	StarIndex int `json:"star_index"`
+	StarTime  int `json:"get_star_ts"`
+}
+*/
 
 // Api structs
 type ApiMember struct {
@@ -30,11 +40,19 @@ type ApiMember struct {
 	Name  string `json:"name"`
 	Stars int    `json:"stars"`
 	ID    int    `json:"id"`
+
+	/*
+		// Unused at the moment
+		CompletionDayLevel map[string]map[string]ApiCompletionDayLevel `json:"completion_day_level,omitempty"`
+		GlobalScore        int                                         `json:"global_score,omitempty"`
+		LastStarTime       int                                         `json:"last_star_ts"`
+	*/
 }
 
 type ApiLeaderboard struct {
-	Event   string      `json:"event"`
-	Members []ApiMember `json:"members"`
+	Event   string               `json:"event"`
+	Members map[string]ApiMember `json:"members"`
+	OwnerId int                  `json:"owner_id"`
 }
 
 type Context struct {

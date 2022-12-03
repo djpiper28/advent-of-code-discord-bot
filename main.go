@@ -50,8 +50,10 @@ func main() {
 	commands := make(map[string]Command)
 
 	// Add all commands here:
-	commandsList := make([]Command, 0)
-	commandsList = append(commandsList, new(SetupCommand))
+	commandsList := []Command{
+		new(SetupCommand),
+		new(LeaderboardCommand),
+	}
 
 	// Create client instance
 	client := goscord.New(&gateway.Options{

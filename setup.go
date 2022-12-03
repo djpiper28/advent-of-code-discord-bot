@@ -25,6 +25,7 @@ func (c *SetupCommand) Category() string {
 
 const __SESSION_KEY = "sessionkey"
 const __LEADBOARD_CODE = "leaderboardurl"
+const __LEADBOARD_YEAR = "leaderboardyear"
 
 func (c *SetupCommand) Options() []*discord.ApplicationCommandOption {
 	return []*discord.ApplicationCommandOption{
@@ -38,6 +39,12 @@ func (c *SetupCommand) Options() []*discord.ApplicationCommandOption {
 			Type:        discord.ApplicationCommandOptionString,
 			Name:        __LEADBOARD_CODE,
 			Description: "Your advent of code leaderboard's url or, code.",
+			Required:    true,
+		},
+		{
+			Type:        discord.ApplicationCommandOptionString,
+			Name:        __LEADBOARD_YEAR,
+			Description: "The year of the advent of code.",
 			Required:    true,
 		},
 	}
@@ -54,6 +61,7 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 
 	sessionkey := ctx.interaction.Data.Options[0].String()
 	leaderboardurl := ctx.interaction.Data.Options[1].String()
+	year := ctx.interaction.Data.Options[2].String()
 
 	// URL to code if needed
 	leaderboardcode := leaderboardurl
@@ -70,11 +78,28 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		dest := GuildSettings{
-			ID: guildid,
+			ID:         guildid,
+			SessionKey: sessionkey,
+			BoardCode:  leaderboardcode,
+			Year:       year,
 		}
 
-		db.FirstOrCreate(&dest, guildid).Updates(map[string]interface{}{
-			"SessionKey": sessionkey, "BoardCode": leaderboardcode})
+		mdl := tx.Model(&dest)
+		err := mdl.Error
+		if err != nil {
+			return err
+		}
+
+		err = mdl.FirstOrCreate(&dest, guildid).Error
+		if err != nil {
+			return err
+		}
+
+		err = mdl.Updates(map[string]interface{}{
+			"SessionKey": sessionkey, "BoardCode": leaderboardcode, "Year": year}).Error
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
