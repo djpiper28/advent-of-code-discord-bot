@@ -50,7 +50,7 @@ func (c *LeaderboardCommand) Execute(ctx *Context) bool {
 	message := fmt.Sprintf("Board code: `%s`\n", gs.BoardCode)
 
 	for _, entry := range entries {
-		message += fmt.Sprintf("%d :trophy: %d :star: **%s**\n",
+		message += fmt.Sprintf("`% 3d` :trophy: `% 2d` :star: **%s**\n",
 			entry.Score,
 			entry.Stars,
 			entry.Name)
