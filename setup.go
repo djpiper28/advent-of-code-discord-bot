@@ -70,7 +70,7 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 	}
 
 	if strings.Contains(leaderboardcode, "-") {
-		leaderboardcode = leaderboardurl[strings.LastIndex(leaderboardcode, "-")+1:]
+		leaderboardcode = leaderboardcode[strings.LastIndex(leaderboardcode, "-")+1:]
 	}
 
 	// Add to database
