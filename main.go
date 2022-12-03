@@ -48,10 +48,12 @@ func main() {
 
 	// Setup commands map
 	commands := make(map[string]Command)
+
+	// Add all commands here:
 	commandsList := make([]Command, 0)
 	commandsList = append(commandsList, new(SetupCommand))
 
-	// Create client instance :
+	// Create client instance
 	client := goscord.New(&gateway.Options{
 		Token:   os.Getenv("BOT_TOKEN"),
 		Intents: gateway.IntentGuilds | gateway.IntentGuildMembers,
@@ -59,7 +61,7 @@ func main() {
 
 	// Setup events
 	err = client.On("ready", func() {
-		log.Print("Registering Slash Commands")
+		log.Print("Clearing old slash commands")
 		cmds, err := client.Application.GetCommands(client.Me().Id, "")
 		if err != nil {
 			log.Print(err)
@@ -72,6 +74,7 @@ func main() {
 			}
 		}
 
+		log.Print("Registering slash commands")
 		for i := range commandsList {
 			Register(commandsList[i], client, commands)
 		}
@@ -110,5 +113,6 @@ func main() {
 	}
 
 	// Keep bot running :
+	log.Print("Bot started")
 	select {}
 }

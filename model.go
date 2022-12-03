@@ -2,14 +2,15 @@ package main
 
 import (
 	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/discord/embed"
 	"github.com/Goscord/goscord/gateway"
+	"log"
 	"time"
 )
 
 // Bot database model
 type GuildSettings struct {
-	ID           uint64 `gorm:"primaryKey"`
-	Name         string // A cache to make database navigation easier
+	ID           string `gorm:"primaryKey"`
 	SessionKey   string
 	BoardCode    string
 	LastPollTime time.Time `gorm:"index"`
@@ -57,6 +58,27 @@ func Register(cmd Command, client *gateway.Session, commands map[string]Command)
 		Options:     cmd.Options(),
 	}
 
-	client.Application.RegisterCommand(client.Me().Id, "", appCmd)
+	_, err := client.Application.RegisterCommand(client.Me().Id, "", appCmd)
+	if err != nil {
+		log.Print(err)
+	}
 	commands[cmd.Name()] = cmd
+}
+
+func ThemeEmbed(e *embed.Builder, ctx *Context) {
+	e.SetFooter(ctx.client.Me().Username, ctx.client.Me().AvatarURL())
+	e.SetColor(embed.Green)
+}
+
+func SendDatabaseError(ctx *Context) {
+	e := embed.NewEmbedBuilder()
+
+	e.SetTitle("An Error Occurred During Your Command")
+	ThemeEmbed(e, ctx)
+
+	// Send response
+	ctx.client.Interaction.CreateResponse(ctx.interaction.Id,
+		ctx.interaction.Token,
+		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
+			Flags: discord.MessageFlagUrgent})
 }
