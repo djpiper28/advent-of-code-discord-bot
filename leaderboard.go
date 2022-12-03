@@ -47,7 +47,7 @@ func (c *LeaderboardCommand) Execute(ctx *Context) bool {
 	})
 
 	e := embed.NewEmbedBuilder()
-	message := ""
+	message := fmt.Sprintf("Board code: `%s`\n", gs.BoardCode)
 
 	for _, entry := range entries {
 		message += fmt.Sprintf("%d :trophy: %d :star: **%s**\n",
