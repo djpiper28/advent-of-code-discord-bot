@@ -116,5 +116,6 @@ func main() {
 
 	// Keep bot running :
 	log.Print("Bot started")
+	go UpdateThread()
 	select {}
 }

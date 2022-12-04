@@ -45,7 +45,7 @@ func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
 	fifteenMinsAgo := time.Now().Add(-15 * time.Minute)
 
 	var ret []LeaderboardEntry
-  db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time 
+	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time 
     FROM leaderboard_entries
     WHERE board_code = ? AND time >= ? 
     ORDER BY board_code, id, time DESC;`, gs.BoardCode, fifteenMinsAgo).Scan(&ret)
@@ -128,11 +128,52 @@ func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	}
 
 	// No cache was found
-  log.Print("No cache was found")
+	log.Print("No cache was found")
 	return updateLeaderBoard(gs)
 }
 
 func UpdateThread() {
 	// Fetch all unique boards, then update them
-	// TODO: this
+	for true {
+		func() {
+			defer func() {
+				err := recover()
+				if err != nil {
+					log.Print(err)
+				}
+			}()
+
+			// Get all guilds
+			var guilds []GuildSettings
+			db := db.Model(&GuildSettings{})
+
+			db = db.Find(&guilds)
+			if db.Error != nil {
+				log.Print(db.Error)
+			}
+
+			// Try and update each board. This uses the board settings for each board until one works.
+			guildsuniq := make(map[string]GuildSettings)
+			for _, gs := range guilds {
+				// If the board has been successfully queried then do not query again
+				_, cont := guildsuniq[gs.BoardCode]
+				if !cont {
+					ent, err := getMostRecentEntries(gs)
+					if err != nil {
+						log.Print(err)
+					} else if len(ent) == 0 {
+						_, err := updateLeaderBoard(gs)
+						if err != nil {
+							log.Print(err)
+						} else {
+							// Tag as queried
+							guildsuniq[gs.BoardCode] = gs
+						}
+					}
+				}
+			}
+		}()
+
+		time.Sleep(time.Second)
+	}
 }
