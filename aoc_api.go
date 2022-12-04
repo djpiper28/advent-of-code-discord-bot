@@ -162,6 +162,7 @@ func UpdateThread() {
 					if err != nil {
 						log.Print(err)
 					} else if len(ent) == 0 {
+						log.Print("Polling indicates update is needed for: ", gs.BoardCode)
 						_, err := updateLeaderBoard(gs)
 						if err != nil {
 							log.Print(err)
