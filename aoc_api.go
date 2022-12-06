@@ -109,8 +109,31 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 		})
 	}
 
-	// Insert the new data
-	err = db.Create(ret).Error
+	// Update old entries with the same boardcode, id and, score, stars
+	entries, err := getMostRecentEntries(gs)
+	if err == nil {
+		for i, entry := range entries {
+			if entry.Score == ret[i].Score && entry.Stars == ret[i].Stars {
+				err = db.Raw(`UPDATE leaderboard_entries
+    SET time = ?
+    WHERE id = ? and score = ? and stars = ? and board_code = ? and pk = ?;`, time.Now(),
+					entry.ID,
+					entry.Stars,
+					entry.Score,
+					entry.BoardCode,
+					entry.PK).Error
+				if err != nil {
+					log.Print("Cannot update cache with compression ", err)
+					break
+				}
+			} else {
+				// Insert the new data
+				err = db.Create(ret[i]).Error
+				break
+			}
+		}
+	}
+
 	return ret, err
 }
 
