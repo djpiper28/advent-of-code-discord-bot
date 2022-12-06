@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-/// This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
+// / This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
 type Jar struct {
 	lk      sync.Mutex
 	cookies map[string][]*http.Cookie
@@ -38,6 +38,20 @@ func (jar *Jar) SetCookies(u *url.URL, cookies []*http.Cookie) {
 // restrictions such as in RFC 6265.
 func (jar *Jar) Cookies(u *url.URL) []*http.Cookie {
 	return jar.cookies[u.Host]
+}
+
+func getMostRecentEntriesNoTimeLimit(gs GuildSettings) ([]LeaderboardEntry, error) {
+	db := db.Model(&LeaderboardEntry{})
+	var ret []LeaderboardEntry
+	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time 
+    FROM leaderboard_entries
+    WHERE board_code = ?
+    ORDER BY board_code, id, time DESC;`, gs.BoardCode).Scan(&ret)
+	if db.Error != nil {
+		return nil, db.Error
+	}
+
+	return ret, nil
 }
 
 func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
@@ -115,7 +129,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	}
 
 	// Get old entries, such that only changes are created. Update timestamps otherwise
-	entriesraw, err := getMostRecentEntries(gs)
+	entriesraw, err := getMostRecentEntriesNoTimeLimit(gs)
 	entries := make(map[int]LeaderboardEntry)
 	for _, entry := range entriesraw {
 		entries[entry.ID] = entry
