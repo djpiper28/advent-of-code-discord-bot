@@ -53,6 +53,7 @@ func main() {
 	commandsList := []Command{
 		new(SetupCommand),
 		new(LeaderboardCommand),
+		new(HelpCommand),
 	}
 
 	// Create client instance

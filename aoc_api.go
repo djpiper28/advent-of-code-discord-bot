@@ -109,30 +109,57 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 		})
 	}
 
-	// Update old entries with the same boardcode, id and, score, stars
-	entries, err := getMostRecentEntries(gs)
+	retmap := make(map[int]LeaderboardEntry)
+	for _, entry := range ret {
+		retmap[entry.ID] = entry
+	}
+
+	// Get old entries, such that only changes are created. Update timestamps otherwise
+	entriesraw, err := getMostRecentEntries(gs)
+	entries := make(map[int]LeaderboardEntry)
+	for _, entry := range entriesraw {
+		entries[entry.ID] = entry
+	}
+
 	if err == nil {
-		for i, entry := range entries {
-			if entry.Score == ret[i].Score && entry.Stars == ret[i].Stars {
+		for id, entry := range entries {
+			retentry, cont := retmap[id]
+
+			// Guard against removal
+			if !cont {
+				log.Print("Entry removed from leaderboard")
+				continue
+			}
+
+			if entry.Score == retentry.Score && entry.Stars == retentry.Stars {
 				err = db.Raw(`UPDATE leaderboard_entries
     SET time = ?
-    WHERE id = ? and score = ? and stars = ? and board_code = ? and pk = ?;`, time.Now(),
-					entry.ID,
-					entry.Stars,
-					entry.Score,
-					entry.BoardCode,
-					entry.PK).Error
+    WHERE pk = ?;`,
+					time.Now(),
+					retentry.PK).Error
 				if err != nil {
 					log.Print("Cannot update cache with compression ", err)
 					break
 				}
 			} else {
 				// Insert the new data
-				err = db.Create(ret[i]).Error
-				break
+				err = db.Create(retentry).Error
+				if err != nil {
+					break
+				}
 			}
+
+			delete(retmap, id)
 		}
 	}
+
+	newentries := make([]LeaderboardEntry, 0)
+	for _, entry := range retmap {
+		newentries = append(newentries, entry)
+	}
+
+	log.Printf("Found %d new entries", len(newentries))
+	err = db.Create(newentries).Error
 
 	return ret, err
 }
@@ -158,45 +185,53 @@ func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
 func UpdateThread() {
 	// Fetch all unique boards, then update them
 	for true {
-		func() {
-			defer func() {
-				err := recover()
-				if err != nil {
-					log.Print(err)
-				}
-			}()
-
-			// Get all guilds
-			var guilds []GuildSettings
-			db := db.Model(&GuildSettings{})
-
-			db = db.Find(&guilds)
-			if db.Error != nil {
-				log.Print(db.Error)
-			}
-
-			// Try and update each board. This uses the board settings for each board until one works.
-			guildsuniq := make(map[string]GuildSettings)
-			for _, gs := range guilds {
-				// If the board has been successfully queried then do not query again
-				_, cont := guildsuniq[gs.BoardCode]
-				if !cont {
-					ent, err := getMostRecentEntries(gs)
+		if time.Now().Month() == time.December {
+			func() {
+				defer func() {
+					err := recover()
 					if err != nil {
 						log.Print(err)
-					} else if len(ent) == 0 {
-						log.Print("Polling indicates update is needed for: ", gs.BoardCode)
-						_, err := updateLeaderBoard(gs)
-						if err != nil {
-							log.Print(err)
-						} else {
-							// Tag as queried
-							guildsuniq[gs.BoardCode] = gs
+					}
+				}()
+
+				// Get all guilds
+				var guilds []GuildSettings
+				db := db.Model(&GuildSettings{})
+
+				db = db.Find(&guilds)
+				if db.Error != nil {
+					log.Print(db.Error)
+				}
+
+				year := fmt.Sprintf("%d", time.Now().Year())
+
+				// Try and update each board. This uses the board settings for each board until one works.
+				guildsuniq := make(map[string]GuildSettings)
+				for _, gs := range guilds {
+					if gs.Year == year {
+						// If the board has been successfully queried then do not query again
+						_, cont := guildsuniq[gs.BoardCode]
+						if !cont {
+							ent, err := getMostRecentEntries(gs)
+
+							if err != nil {
+								log.Print(err)
+							} else if len(ent) == 0 {
+								log.Print("Polling indicates update is needed for: ", gs.BoardCode)
+								_, err := updateLeaderBoard(gs)
+
+								if err != nil {
+									log.Print(err)
+								} else {
+									// Tag as queried
+									guildsuniq[gs.BoardCode] = gs
+								}
+							}
 						}
 					}
 				}
-			}
-		}()
+			}()
+		}
 
 		time.Sleep(time.Second)
 	}
