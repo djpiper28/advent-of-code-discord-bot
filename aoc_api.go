@@ -165,6 +165,8 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 
 			delete(retmap, id)
 		}
+	} else {
+		log.Print(err)
 	}
 
 	newentries := make([]LeaderboardEntry, 0)
