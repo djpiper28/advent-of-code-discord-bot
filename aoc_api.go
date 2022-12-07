@@ -142,28 +142,28 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 			// Guard against removal
 			if !cont {
 				log.Print("Entry removed from leaderboard")
-				continue
-			}
-
-			if entry.Score == retentry.Score && entry.Stars == retentry.Stars {
-				err = db.Raw(`UPDATE leaderboard_entries
+			} else {
+				if entry.Score == retentry.Score && entry.Stars == retentry.Stars {
+					err = db.Raw(`UPDATE leaderboard_entries
     SET time = ?
     WHERE pk = ?;`,
-					time.Now(),
-					entry.PK).Error
-				if err != nil {
-					log.Print("Cannot update cache with compression ", err)
-					break
+						time.Now(),
+						entry.PK).Error
+					if err != nil {
+						log.Print("Cannot update cache with compression ", err)
+						break
+					}
+				} else {
+					// Insert the new data
+					err = db.Create(retentry).Error
+					if err != nil {
+						log.Print(err)
+						break
+					}
 				}
-			} else {
-				// Insert the new data
-				err = db.Create(retentry).Error
-				if err != nil {
-					break
-				}
-			}
 
-			delete(retmap, id)
+				delete(retmap, id)
+			}
 		}
 	} else {
 		log.Print(err)
