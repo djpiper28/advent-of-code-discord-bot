@@ -110,8 +110,9 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 
 	// Map api leaderboard to entry
 	ret := make([]LeaderboardEntry, 0)
+	retmap := make(map[int]LeaderboardEntry)
 	for _, val := range rawret.Members {
-		ret = append(ret, LeaderboardEntry{
+		retmap[val.ID] = LeaderboardEntry{
 			Time:      time.Now(),
 			Stars:     val.Stars,
 			Score:     val.Score,
@@ -120,22 +121,18 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 			Event:     rawret.Event,
 			PK:        uuid.New().String(),
 			BoardCode: gs.BoardCode,
-		})
-	}
-
-	retmap := make(map[int]LeaderboardEntry)
-	for _, entry := range ret {
-		retmap[entry.ID] = entry
+		}
+		ret = append(ret, retmap[val.ID])
 	}
 
 	// Get old entries, such that only changes are created. Update timestamps otherwise
 	entriesraw, err := getMostRecentEntriesNoTimeLimit(gs)
-	entries := make(map[int]LeaderboardEntry)
-	for _, entry := range entriesraw {
-		entries[entry.ID] = entry
-	}
-
 	if err == nil {
+		entries := make(map[int]LeaderboardEntry)
+		for _, entry := range entriesraw {
+			entries[entry.ID] = entry
+		}
+
 		for id, entry := range entries {
 			retentry, cont := retmap[id]
 
