@@ -43,7 +43,7 @@ func (jar *Jar) Cookies(u *url.URL) []*http.Cookie {
 func getMostRecentEntriesNoTimeLimit(gs GuildSettings) ([]LeaderboardEntry, error) {
 	db := db.Model(&LeaderboardEntry{})
 	var ret []LeaderboardEntry
-	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time 
+	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk 
     FROM leaderboard_entries
     WHERE board_code = ?
     ORDER BY board_code, id, time DESC;`, gs.BoardCode).Scan(&ret)
@@ -59,7 +59,7 @@ func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
 	fifteenMinsAgo := time.Now().Add(-15 * time.Minute)
 
 	var ret []LeaderboardEntry
-	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time 
+	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk 
     FROM leaderboard_entries
     WHERE board_code = ? AND time >= ? 
     ORDER BY board_code, id, time DESC;`, gs.BoardCode, fifteenMinsAgo).Scan(&ret)
@@ -150,7 +150,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
     SET time = ?
     WHERE pk = ?;`,
 					time.Now(),
-					retentry.PK).Error
+					entry.PK).Error
 				if err != nil {
 					log.Print("Cannot update cache with compression ", err)
 					break
