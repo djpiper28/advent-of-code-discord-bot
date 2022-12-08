@@ -134,9 +134,6 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 			entries[entry.ID] = entry
 		}
 
-		log.Print(entriesraw)
-		log.Print(entries)
-
 		for id, entry := range entries {
 			retentry, cont := retmap[id]
 
@@ -145,7 +142,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 				log.Print("Entry removed from leaderboard")
 			} else {
 				if entry.Score == retentry.Score && entry.Stars == retentry.Stars {
-					err = db.Raw(`UPDATE leaderboard_entries
+					err = db.Exec(`UPDATE leaderboard_entries
     SET time = ?, name = ?
     WHERE pk = ?;`,
 						time.Now(),
@@ -157,7 +154,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 						break
 					}
 				} else {
-					err = db.Raw(`UPDATE leaderboard_entries
+					err = db.Exec(`UPDATE leaderboard_entries
     SET time = ?, stars = ?, score = ?, name = ?
     WHERE pk = ?;`,
 						time.Now(),
@@ -170,7 +167,6 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 						log.Print("Cannot update cache with compression ", err)
 						break
 					}
-
 				}
 
 				delete(retmap, id)
@@ -182,6 +178,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 
 	newentries := make([]LeaderboardEntry, 0)
 	for _, entry := range retmap {
+		entry.PK = uuid.New().String()
 		newentries = append(newentries, entry)
 
 		entry.PK = uuid.New().String()
@@ -212,6 +209,14 @@ func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	// No cache was found
 	log.Print("No cache was found")
 	return updateLeaderBoard(gs)
+}
+
+func GetProfile(name string, gs GuildSettings) ([]LeaderboardEntry, error) {
+	db := db.Model(&LeaderboardEntry{})
+
+	var ret []LeaderboardEntry
+	db = db.Where("board_code = ?", gs.BoardCode).Where("name = ?", name).Find(&ret)
+	return ret, db.Error
 }
 
 func UpdateThread() {

@@ -54,6 +54,7 @@ func main() {
 		new(SetupCommand),
 		new(LeaderboardCommand),
 		new(HelpCommand),
+		new(ProfileCommand),
 	}
 
 	// Create client instance
