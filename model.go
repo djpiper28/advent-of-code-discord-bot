@@ -18,8 +18,8 @@ type GuildSettings struct {
 
 type LeaderboardEntry struct {
 	PK        string `gorm:"primaryKey"`
-	Name      string
-	ID        int
+	Name      string `gorm:"index"`
+	ID        int    `gorm:"index"`
 	Score     int
 	Stars     int
 	Event     string    `gorm:"index"`

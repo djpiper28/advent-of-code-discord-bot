@@ -42,8 +42,9 @@ func (jar *Jar) Cookies(u *url.URL) []*http.Cookie {
 
 func getMostRecentEntriesNoTimeLimit(gs GuildSettings) ([]LeaderboardEntry, error) {
 	db := db.Model(&LeaderboardEntry{})
+
 	var ret []LeaderboardEntry
-	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk 
+	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk, id, board_code 
     FROM leaderboard_entries
     WHERE board_code = ?
     ORDER BY board_code, id, time DESC;`, gs.BoardCode).Scan(&ret)
@@ -59,7 +60,7 @@ func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
 	fifteenMinsAgo := time.Now().Add(-15 * time.Minute)
 
 	var ret []LeaderboardEntry
-	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk 
+	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk, id, board_code 
     FROM leaderboard_entries
     WHERE board_code = ? AND time >= ? 
     ORDER BY board_code, id, time DESC;`, gs.BoardCode, fifteenMinsAgo).Scan(&ret)
@@ -133,6 +134,9 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 			entries[entry.ID] = entry
 		}
 
+		log.Print(entriesraw)
+		log.Print(entries)
+
 		for id, entry := range entries {
 			retentry, cont := retmap[id]
 
@@ -146,20 +150,13 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
     WHERE pk = ?;`,
 						time.Now(),
 						entry.PK).Error
+					log.Printf("Updated time for %s", entry.Name)
 					if err != nil {
 						log.Print("Cannot update cache with compression ", err)
 						break
 					}
-				} else {
-					// Insert the new data
-					err = db.Create(retentry).Error
-					if err != nil {
-						log.Print(err)
-						break
-					}
+					delete(retmap, id)
 				}
-
-				delete(retmap, id)
 			}
 		}
 	} else {
@@ -171,8 +168,10 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 		newentries = append(newentries, entry)
 	}
 
-	log.Printf("Found %d new entries", len(newentries))
-	err = db.Create(newentries).Error
+	if len(newentries) != 0 {
+		log.Printf("Found %d new entries", len(newentries))
+		err = db.Create(newentries).Error
+	}
 
 	return ret, err
 }
