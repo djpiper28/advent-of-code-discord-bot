@@ -137,7 +137,7 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	score := entries[len(entries)-1].Score
 	stars := entries[len(entries)-1].Stars
 
-	message := fmt.Sprintf("Board code: `%s`\nCurrent scores: % 4d :trophy: % 3d :star:",
+	message := fmt.Sprintf("Board code: `%s`\nCurrent scores: `% 4d` :trophy: `% 3d` :star:",
 		gs.BoardCode,
 		score,
 		stars)
