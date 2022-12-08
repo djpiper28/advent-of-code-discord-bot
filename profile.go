@@ -88,11 +88,13 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	p.X.Label.Text = "Time"
 	p.X.Color = HexToRGB(TEXT_COLOUR)
 	p.X.Label.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.X.Tick.LineStyle.Color = HexToRGB(TEXT_COLOUR)
 	p.X.Tick.Label.Color = HexToRGB(TEXT_COLOUR)
 
 	p.Y.Label.Text = "Score"
 	p.Y.Color = HexToRGB(TEXT_COLOUR)
 	p.Y.Label.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.Y.Tick.LineStyle.Color = HexToRGB(TEXT_COLOUR)
 	p.Y.Tick.Label.Color = HexToRGB(TEXT_COLOUR)
 
 	err = plotutil.AddLinePoints(p,
