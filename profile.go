@@ -88,7 +88,7 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	}
 
 	sort.Slice(entries, func(a int, b int) bool {
-		return entries[a].Time.Unix() > entries[b].Time.Unix()
+		return entries[a].Time.Unix() < entries[b].Time.Unix()
 	})
 
 	// Generate plotter data
