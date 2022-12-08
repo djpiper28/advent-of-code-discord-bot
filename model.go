@@ -92,6 +92,7 @@ func SendDatabaseError(ctx *Context) {
 	e := embed.NewEmbedBuilder()
 
 	e.SetTitle("An Error Occurred During Your Command")
+	e.SetDescription("A database error occured.")
 	ThemeEmbed(e, ctx)
 
 	// Send response
@@ -105,6 +106,20 @@ func SendPermissionsError(ctx *Context) {
 	e := embed.NewEmbedBuilder()
 
 	e.SetTitle("This Command Requires Administrator Permissions To Run")
+	ThemeEmbed(e, ctx)
+
+	// Send response
+	ctx.client.Interaction.CreateResponse(ctx.interaction.Id,
+		ctx.interaction.Token,
+		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
+			Flags: discord.MessageFlagEphemeral})
+}
+
+func SendError(message string, ctx *Context) {
+	e := embed.NewEmbedBuilder()
+
+	e.SetTitle("An Error Occurred During Your Command")
+	e.SetDescription(message)
 	ThemeEmbed(e, ctx)
 
 	// Send response
