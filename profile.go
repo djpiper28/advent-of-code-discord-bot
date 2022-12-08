@@ -1,40 +1,16 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/discord/embed"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
-	"gonum.org/v1/plot/vg"
-	"io/ioutil"
 	"log"
-	"net/http"
+	"os"
 	"sort"
-	"sync"
 )
-
-// / Plots are stored on the disk in a scratch file whilst they are being made
-const PLOT_SCRATCH_FILE = "tmp.plot_scratch_file.png"
-const PLOT_SIZE = 4 * vg.Inch
-
-var plotScratchFileLock sync.Mutex
-
-func lockAndPlot(f func()) {
-	plotScratchFileLock.Lock()
-	defer func() {
-		plotScratchFileLock.Unlock()
-
-		err := recover()
-		if err != nil {
-			log.Print(err)
-		}
-	}()
-
-	f()
-}
 
 type ProfileCommand struct{}
 
@@ -98,15 +74,26 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 		scorePoints[i].Y = float64(entries[i].Score)
 		starPoints[i].Y = float64(entries[i].Stars)
 
-		scorePoints[i].X = float64(entries[i].Time.Unix())
-		starPoints[i].X = float64(entries[i].Time.Unix())
+		scorePoints[i].X = float64(TimeToPlot(entries[i].Time))
+		starPoints[i].X = float64(TimeToPlot(entries[i].Time))
 	}
 
 	// Add to graph
 	p := plot.New()
-	p.Title.Text = fmt.Sprintf("%s's Score", name)
+	p.Title.Text = fmt.Sprintf("%s's Advent of Code Score", name)
+	p.Title.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.Legend.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.BackgroundColor = HexToRGB(BG_COLOUR)
+
 	p.X.Label.Text = "Time"
+	p.X.Color = HexToRGB(TEXT_COLOUR)
+	p.X.Label.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.X.Tick.Label.Color = HexToRGB(TEXT_COLOUR)
+
 	p.Y.Label.Text = "Score"
+	p.Y.Color = HexToRGB(TEXT_COLOUR)
+	p.Y.Label.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.Y.Tick.Label.Color = HexToRGB(TEXT_COLOUR)
 
 	err = plotutil.AddLinePoints(p,
 		"Trophies", scorePoints,
@@ -118,30 +105,21 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	}
 
 	log.Printf("Plotting profile for %s", name)
-	lockAndPlot(func() {
+	LockAndPlot(func() {
 		// Save plot
 		err = p.Save(PLOT_SIZE, PLOT_SIZE, PLOT_SCRATCH_FILE)
 		if err != nil {
-			log.Print(err)
-			SendDatabaseError(ctx)
 			return
 		}
 
-		imgdata, err := ioutil.ReadFile(PLOT_SCRATCH_FILE)
+		image, err := os.Open(PLOT_SCRATCH_FILE)
 		if err != nil {
-			log.Print(err)
-			SendDatabaseError(ctx)
 			return
 		}
-
-		mediaType := http.DetectContentType(imgdata)
-		encoded := base64.StdEncoding.EncodeToString(imgdata)
-
-		imagestring := fmt.Sprintf("data:%s;base64,%s", mediaType, encoded)
 
 		// Send plot
-		_, err = ctx.client.Channel.SendMessage(ctx.interaction.ChannelId, imagestring)
-		_, err = ctx.client.Channel.SendMessage(ctx.interaction.ChannelId, imgdata)
+		_, err = ctx.client.Channel.SendMessage(ctx.interaction.ChannelId, []*os.File{image})
+		log.Print(err)
 	})
 
 	if err != nil {
