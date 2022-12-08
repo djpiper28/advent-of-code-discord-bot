@@ -60,9 +60,9 @@ func (c *LeaderboardCommand) Execute(ctx *Context) bool {
 		}
 
 		message += fmt.Sprintf("`% 4d` :%s: `% 3d` :star: **%s**\n",
-			icon,
 			entry.Score,
 			entry.Stars,
+			icon,
 			entry.Name)
 	}
 
