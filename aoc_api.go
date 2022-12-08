@@ -146,17 +146,34 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 			} else {
 				if entry.Score == retentry.Score && entry.Stars == retentry.Stars {
 					err = db.Raw(`UPDATE leaderboard_entries
-    SET time = ?
+    SET time = ?, name = ?
     WHERE pk = ?;`,
 						time.Now(),
+						retentry.Name,
 						entry.PK).Error
 					log.Printf("Updated time for %s", entry.Name)
 					if err != nil {
 						log.Print("Cannot update cache with compression ", err)
 						break
 					}
-					delete(retmap, id)
+				} else {
+					err = db.Raw(`UPDATE leaderboard_entries
+    SET time = ?, stars = ?, score = ?, name = ?
+    WHERE pk = ?;`,
+						time.Now(),
+						retentry.Stars,
+						retentry.Score,
+						retentry.Name,
+						entry.PK).Error
+					log.Printf("Updated time for %s", entry.Name)
+					if err != nil {
+						log.Print("Cannot update cache with compression ", err)
+						break
+					}
+
 				}
+
+				delete(retmap, id)
 			}
 		}
 	} else {
@@ -167,7 +184,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	for _, entry := range retmap {
 		newentries = append(newentries, entry)
 
-    entry.pk = uuid.New().String()
+		entry.PK = uuid.New().String()
 		newentries = append(newentries, entry)
 	}
 
