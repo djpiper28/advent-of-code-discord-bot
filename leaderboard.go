@@ -49,8 +49,18 @@ func (c *LeaderboardCommand) Execute(ctx *Context) bool {
 	e := embed.NewEmbedBuilder()
 	message := fmt.Sprintf("Board code: `%s`\n", gs.BoardCode)
 
-	for _, entry := range entries {
-		message += fmt.Sprintf("`% 4d` :trophy: `% 3d` :star: **%s**\n",
+	for i, entry := range entries {
+		icon := "trophy"
+		if i == 0 {
+			icon = "first_place"
+		} else if i == 1 {
+			icon = "second_place"
+		} else if i == 2 {
+			icon = "third_place"
+		}
+
+		message += fmt.Sprintf("`% 4d` :%s: `% 3d` :star: **%s**\n",
+			icon,
 			entry.Score,
 			entry.Stars,
 			entry.Name)
