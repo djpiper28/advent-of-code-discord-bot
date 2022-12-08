@@ -86,14 +86,14 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	p.BackgroundColor = HexToRGB(BG_COLOUR)
 
 	p.X.Label.Text = "Time"
-	p.X.Color = HexToRGB(TEXT_COLOUR)
 	p.X.Label.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.X.Color = HexToRGB(TEXT_COLOUR)
 	p.X.Tick.LineStyle.Color = HexToRGB(TEXT_COLOUR)
 	p.X.Tick.Label.Color = HexToRGB(TEXT_COLOUR)
 
 	p.Y.Label.Text = "Score"
-	p.Y.Color = HexToRGB(TEXT_COLOUR)
 	p.Y.Label.TextStyle.Color = HexToRGB(TEXT_COLOUR)
+	p.Y.Color = HexToRGB(TEXT_COLOUR)
 	p.Y.Tick.LineStyle.Color = HexToRGB(TEXT_COLOUR)
 	p.Y.Tick.Label.Color = HexToRGB(TEXT_COLOUR)
 
@@ -118,6 +118,8 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 		if err != nil {
 			return
 		}
+
+		defer image.Close()
 
 		// Send plot
 		_, err = ctx.client.Channel.SendMessage(ctx.interaction.ChannelId, []*os.File{image})
