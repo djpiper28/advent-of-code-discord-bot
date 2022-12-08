@@ -15,7 +15,7 @@ const BG_COLOUR = 0x36393F
 const TEXT_COLOUR = 0xFFFFFF
 
 func TimeToPlot(t time.Time) float64 {
-	return float64(t.Day()) + float64(t.Hour()/24) + float64(t.Minute())/24/60
+	return float64(t.Day()) + float64(t.Hour())/24 + float64(t.Minute())/24/60
 }
 
 func HexToRGB(hex uint) color.Color {
