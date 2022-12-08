@@ -22,7 +22,7 @@ func HexToRGB(hex uint) color.Color {
 	return color.RGBA{R: uint8(hex & 0xFF0000 >> 16),
 		G: uint8(hex & 0xFF00 >> 8),
 		B: uint8(hex & 0xFF),
-		A: 0}
+		A: 0xFF}
 }
 
 var plotScratchFileLock sync.Mutex
