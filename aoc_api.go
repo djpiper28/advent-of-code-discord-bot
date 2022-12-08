@@ -166,6 +166,9 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	newentries := make([]LeaderboardEntry, 0)
 	for _, entry := range retmap {
 		newentries = append(newentries, entry)
+
+    entry.pk = uuid.New().String()
+		newentries = append(newentries, entry)
 	}
 
 	if len(newentries) != 0 {
