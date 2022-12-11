@@ -182,6 +182,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 		newentries = append(newentries, entry)
 
 		entry.PK = uuid.New().String()
+		entry.Time = entry.Time.Add(time.Millisecond)
 		newentries = append(newentries, entry)
 	}
 
