@@ -153,23 +153,8 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 						log.Print("Cannot update cache with compression ", err)
 						break
 					}
-				} else {
-					err = db.Exec(`UPDATE leaderboard_entries
-    SET time = ?, stars = ?, score = ?, name = ?
-    WHERE pk = ?;`,
-						time.Now(),
-						retentry.Stars,
-						retentry.Score,
-						retentry.Name,
-						entry.PK).Error
-					log.Printf("Updated time for %s", entry.Name)
-					if err != nil {
-						log.Print("Cannot update cache with compression ", err)
-						break
-					}
+					delete(retmap, id)
 				}
-
-				delete(retmap, id)
 			}
 		}
 	} else {
