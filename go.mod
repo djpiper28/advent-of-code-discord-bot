@@ -6,12 +6,12 @@ require (
 	github.com/Goscord/goscord v0.0.0-20220904014649-8e274d13b9ec
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
+	gonum.org/v1/plot v0.12.0
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.2
 )
 
 require (
-	gioui.org v0.0.0-20210308172011-57750fc8a0a6 // indirect
 	git.sr.ht/~sbinet/gg v0.3.1 // indirect
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef // indirect
@@ -31,10 +31,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/exp/shiny v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/text v0.3.7 // indirect
-	gonum.org/v1/plot v0.12.0 // indirect
-	rsc.io/pdf v0.1.1 // indirect
+	golang.org/x/text v0.3.8 // indirect
 )
