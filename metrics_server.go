@@ -28,8 +28,8 @@ func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message := []byte(fmt.Sprintf(`aoc_guild_count=%d
-aoc_leaderboard_entries=%d`,
+	message := []byte(fmt.Sprintf(`aoc_guild_count %d
+aoc_leaderboard_entries %d`,
 		guildCount,
 		leaderboardEntries))
 	w.Write(message)
