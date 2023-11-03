@@ -29,7 +29,7 @@ func (c *HelpCommand) Execute(ctx *Context) bool {
 	e.SetTitle("Advent of Code Bot Help")
 	e.SetDescription(`**Setup**
 In order to setup the bot you need
- 1. A session id, this can be got by going reading it from your browser's local storage in inspect element, it is a cookie saved as session.
+ 1. A session id, this can be got by going reading it from your browser's cookie storage in inspect element, it is a cookie saved as session.
  2. You also need to copy paste the leaderboard code of your leaderboard
  3. Use /setup, you need Admnistrator permissions to do this
 

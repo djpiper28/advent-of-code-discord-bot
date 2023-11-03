@@ -32,7 +32,7 @@ func (c *SetupCommand) Options() []*discord.ApplicationCommandOption {
 		{
 			Type:        discord.ApplicationCommandOptionString,
 			Name:        __SESSION_KEY,
-			Description: "Your advent of code session key, this is used to fetch your leaderboard and, nothing else.",
+			Description: "Your advent of code session key, this is used to fetch your leaderboard and, nothing else. Use /help",
 			Required:    true,
 		},
 		{
