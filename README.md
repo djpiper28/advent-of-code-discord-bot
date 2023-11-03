@@ -1,7 +1,7 @@
 # advent-of-code-discord-bot
 
 Instead of doing advent of code I did this. idk why.
-[https://discord.com/api/oauth2/authorize?client_id=1047611666604503061&permissions=8&scope=bot%20applications.commands](https://discord.com/api/oauth2/authorize?client_id=1047611666604503061&permissions=8&scope=bot%20applications.commands)
+[Discord Invite Link](https://discord.com/api/oauth2/authorize?client_id=1047611666604503061&permissions=8&scope=bot%20applications.commands)
 
 ## Setting Up The `.env` File
 
