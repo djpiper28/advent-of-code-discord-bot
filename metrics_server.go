@@ -36,8 +36,8 @@ func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 aoc_leaderboard_entries %d
 aoc_command_requests %d
 aoc_command_errors %d
-aoc_cache_hits
-aoc_cache_misses`,
+aoc_cache_hits %d
+aoc_cache_misses %d`,
 		guildCount,
 		leaderboardEntries,
 		commandRequests,
