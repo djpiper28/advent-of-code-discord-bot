@@ -31,6 +31,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/image v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/image v0.10.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 )
