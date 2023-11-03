@@ -27,11 +27,13 @@ func (c *LeaderboardCommand) Options() []*discord.ApplicationCommandOption {
 }
 
 func (c *LeaderboardCommand) Execute(ctx *Context) bool {
+	commandRequests++
 	var gs GuildSettings
 	r := db.First(&gs, ctx.interaction.GuildId)
 	if r == nil {
 		log.Print("Cannot find any matching guilds")
 		SendDatabaseError(ctx)
+		commandErrors++
 		return false
 	}
 
@@ -39,6 +41,7 @@ func (c *LeaderboardCommand) Execute(ctx *Context) bool {
 	if err != nil {
 		log.Print(err)
 		SendDatabaseError(ctx)
+		commandErrors++
 		return false
 	}
 

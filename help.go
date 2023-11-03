@@ -24,6 +24,7 @@ func (c *HelpCommand) Options() []*discord.ApplicationCommandOption {
 }
 
 func (c *HelpCommand) Execute(ctx *Context) bool {
+	commandRequests++
 	e := embed.NewEmbedBuilder()
 	e.SetTitle("Advent of Code Bot Help")
 	e.SetDescription(`**Setup**

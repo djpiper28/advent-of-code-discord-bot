@@ -189,11 +189,13 @@ func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
 
 	// Cache was found
 	if len(cache) != 0 {
+		cacheHits++
 		return cache, nil
 	}
 
 	// No cache was found
 	log.Print("No cache was found")
+	cacheMisses++
 	return updateLeaderBoard(gs)
 }
 

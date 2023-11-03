@@ -40,6 +40,7 @@ func (c *ProfileCommand) Options() []*discord.ApplicationCommandOption {
 }
 
 func (c *ProfileCommand) Execute(ctx *Context) bool {
+	commandRequests++
 	name := ctx.interaction.Data.Options[0].String()
 
 	var gs GuildSettings
@@ -47,6 +48,7 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	if r == nil {
 		log.Print("Cannot find any matching guilds")
 		SendDatabaseError(ctx)
+		commandErrors++
 		return false
 	}
 
@@ -54,12 +56,14 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	if err != nil {
 		log.Print(err)
 		SendDatabaseError(ctx)
+		commandErrors++
 		return false
 	}
 
 	if len(entries) == 0 {
 		log.Print("User has no entries")
 		SendError(fmt.Sprintf("`%s` cannot be found.", name), ctx)
+		commandErrors++
 		return false
 	}
 
@@ -103,6 +107,7 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	if err != nil {
 		log.Print(err)
 		SendDatabaseError(ctx)
+		commandErrors++
 		return false
 	}
 
@@ -129,6 +134,7 @@ func (c *ProfileCommand) Execute(ctx *Context) bool {
 	if err != nil {
 		log.Print(err)
 		SendDatabaseError(ctx)
+		commandErrors++
 		return false
 	}
 

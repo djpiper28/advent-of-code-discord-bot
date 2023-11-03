@@ -8,10 +8,14 @@ import (
 )
 
 var metricsErrorMessage = []byte("Cannot get metrics")
+var commandRequests int
+var commandErrors int
+var cacheHits int
+var cacheMisses int
 
 func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 	var guildCount int64
-	db := db.Model(GuildSettings{}).Count(&guildCount)
+	db := db.Model(&GuildSettings{}).Count(&guildCount)
 	if db.Error != nil {
 		log.Println("Cannot get guild count metric", db.Error)
 		w.Write(metricsErrorMessage)
@@ -20,7 +24,7 @@ func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var leaderboardEntries int64
-	db = db.Model(LeaderboardEntry{}).Count(&leaderboardEntries)
+	db = db.Model(&LeaderboardEntry{}).Count(&leaderboardEntries)
 	if db.Error != nil {
 		log.Println("Cannot get leaderboard entries metric")
 		w.Write(metricsErrorMessage)
@@ -29,9 +33,17 @@ func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message := []byte(fmt.Sprintf(`aoc_guild_count %d
-aoc_leaderboard_entries %d`,
+aoc_leaderboard_entries %d
+aoc_command_requests %d
+aoc_command_errors %d
+aoc_cache_hits
+aoc_cache_misses`,
 		guildCount,
-		leaderboardEntries))
+		leaderboardEntries,
+		commandRequests,
+		commandErrors,
+		cacheHits,
+		cacheMisses))
 	w.Write(message)
 }
 

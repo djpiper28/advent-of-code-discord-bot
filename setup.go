@@ -54,8 +54,10 @@ const SESSION_KEY_BLOCK_COUNT = 4
 const NON_REDACTED_CHAR_COUNT = 4
 
 func (c *SetupCommand) Execute(ctx *Context) bool {
+	commandRequests++
 	if ctx.interaction.Member.Permissions&discord.BitwisePermissionFlagAdministrator == 0 {
 		SendPermissionsError(ctx)
+		commandErrors++
 		return false
 	}
 
@@ -105,6 +107,7 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 	if err != nil {
 		log.Print(err)
 		SendDatabaseError(ctx)
+		commandErrors++
 		return false
 	}
 
@@ -126,7 +129,7 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 	}
 
 	e := embed.NewEmbedBuilder()
-	message := fmt.Sprintf("**Reconfigured by:** <@%s>\n**Session key:** %s\n**Leaderboard Code:** [%s](%s)",
+	message := fmt.Sprintf("**Reconfigured by:** <@%s>\n**Session key:** %s\n**Leaderboard Code:** [%s]",
 		ctx.interaction.Member.User.Id,
 		sessionkey_redacted,
 		leaderboardcode)
@@ -141,6 +144,5 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 		ctx.interaction.Token,
 		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
 			Flags: discord.MessageFlagUrgent})
-
 	return true
 }
