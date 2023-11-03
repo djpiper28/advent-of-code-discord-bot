@@ -40,13 +40,6 @@ type ApiMember struct {
 	Name  string `json:"name"`
 	Stars int    `json:"stars"`
 	ID    int    `json:"id"`
-
-	/*
-		// Unused at the moment
-		CompletionDayLevel map[string]map[string]ApiCompletionDayLevel `json:"completion_day_level,omitempty"`
-		GlobalScore        int                                         `json:"global_score,omitempty"`
-		LastStarTime       int                                         `json:"last_star_ts"`
-	*/
 }
 
 type ApiLeaderboard struct {
