@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Setup database
-  log.Println("Connecting to the database")
+	log.Println("Connecting to the database")
 	databaseUrl := os.Getenv("DATABASE_URL")
 	db, err = gorm.Open(postgres.Open(databaseUrl), &gorm.Config{}) // *gorm.DB
 	if err != nil {
@@ -47,8 +47,8 @@ func main() {
 	db.AutoMigrate(&GuildSettings{})
 	db.AutoMigrate(&LeaderboardEntry{})
 
-  // Setup metrics server
-  go StartMetricsServer()
+	// Setup metrics server
+	go StartMetricsServer()
 
 	// Setup commands map
 	commands := make(map[string]Command)
