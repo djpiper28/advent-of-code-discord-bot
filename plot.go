@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// / Plots are stored on the disk in a scratch file whilst they are being made
+// Plots are stored on the disk in a scratch file whilst they are being made
 const PLOT_SCRATCH_FILE = "tmp.plot_scratch_file.png"
 const PLOT_SIZE = 8 * vg.Inch
 const BG_COLOUR = 0x36393F
