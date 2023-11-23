@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// / This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
+// This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
 type Jar struct {
 	lk      sync.Mutex
 	cookies map[string][]*http.Cookie
@@ -29,8 +29,8 @@ func NewJar() *Jar {
 // on the jar's policy and implementation.
 func (jar *Jar) SetCookies(u *url.URL, cookies []*http.Cookie) {
 	jar.lk.Lock()
+	defer jar.lk.Unlock()
 	jar.cookies[u.Host] = cookies
-	jar.lk.Unlock()
 }
 
 // Cookies returns the cookies to send in a request for the given URL.
