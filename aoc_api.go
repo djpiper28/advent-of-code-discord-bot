@@ -3,13 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
@@ -57,13 +58,13 @@ func getMostRecentEntriesNoTimeLimit(gs GuildSettings) ([]LeaderboardEntry, erro
 
 func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
 	db := db.Model(&LeaderboardEntry{})
-	fifteenMinsAgo := time.Now().Add(-20 * time.Minute)
+	twentyMinsAgo := time.Now().Add(-20 * time.Minute)
 
 	var ret []LeaderboardEntry
 	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk, id, board_code 
     FROM leaderboard_entries
     WHERE board_code = ? AND time >= ? 
-    ORDER BY board_code, id, time DESC;`, gs.BoardCode, fifteenMinsAgo).Scan(&ret)
+    ORDER BY board_code, id, time DESC;`, gs.BoardCode, twentyMinsAgo).Scan(&ret)
 	if db.Error != nil {
 		return nil, db.Error
 	}
