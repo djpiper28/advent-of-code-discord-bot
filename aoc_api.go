@@ -258,6 +258,6 @@ func UpdateThread() {
 			}()
 		}
 
-		time.Sleep(time.Second)
+		time.Sleep(time.Minute)
 	}
 }
