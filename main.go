@@ -2,16 +2,18 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"runtime"
+	"strings"
+	"time"
+
 	"github.com/Goscord/goscord"
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/gateway"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
-	"os"
-	"runtime"
-	"time"
 )
 
 var db *gorm.DB
@@ -122,6 +124,10 @@ func main() {
 
 	// Keep bot running :
 	log.Print("Bot started")
-	go UpdateThread()
-	select {}
+
+	if strings.ToLower(os.Getenv("ENABLE_POLLING")) == "true" {
+		log.Println("Polling enabled")
+		go UpdateThread()
+		select {}
+	}
 }
