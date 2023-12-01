@@ -57,7 +57,7 @@ func getMostRecentEntriesNoTimeLimit(gs GuildSettings) ([]LeaderboardEntry, erro
 
 func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
 	db := db.Model(&LeaderboardEntry{})
-	fifteenMinsAgo := time.Now().Add(-15 * time.Minute)
+	fifteenMinsAgo := time.Now().Add(-20 * time.Minute)
 
 	var ret []LeaderboardEntry
 	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk, id, board_code 
