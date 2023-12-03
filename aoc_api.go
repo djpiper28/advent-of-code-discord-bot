@@ -317,7 +317,6 @@ func UpdateThread() {
 								// On update failure, update the times
 								if err != nil {
 									log.Print(err)
-								} else {
 									updateTimes(gs)
 								}
 							}
