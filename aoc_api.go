@@ -7,10 +7,12 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/wybiral/torgo"
 )
 
 // This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
@@ -208,6 +210,47 @@ func GetProfile(name string, gs GuildSettings) ([]LeaderboardEntry, error) {
 	return ret, db.Error
 }
 
+func changeExitNode(torController string) error {
+	log.Print("Connecting to Tor controller")
+	controller, err := torgo.NewController(torController)
+	if err != nil {
+		return err
+	}
+
+	err = controller.AuthenticateNone()
+	if err != nil {
+		return err
+	}
+
+	log.Print("Sending Tor signal to get new circuits")
+	err = controller.Signal("NEWNYM")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Updates the last updated times for a guild
+func updateTimes(gs GuildSettings) {
+	entriesraw, err := getMostRecentEntriesNoTimeLimit(gs)
+	if err == nil {
+		for _, entry := range entriesraw {
+			err = db.Exec(`UPDATE leaderboard_entries
+                      SET time = ?
+                      WHERE pk = ?;`,
+				time.Now(),
+				entry.PK).Error
+			log.Printf("Updated time for %s", entry.Name)
+			if err != nil {
+				log.Print("Cannot update cache with compression ", err)
+				break
+			}
+		}
+	} else {
+		log.Print(err)
+	}
+}
+
 func UpdateThread() {
 	// Fetch all unique boards, then update them
 	for true {
@@ -250,23 +293,7 @@ func UpdateThread() {
 								if err != nil {
 									log.Print(err)
 								} else {
-									entriesraw, err := getMostRecentEntriesNoTimeLimit(gs)
-									if err == nil {
-										for _, entry := range entriesraw {
-											err = db.Exec(`UPDATE leaderboard_entries
-                      SET time = ?
-                      WHERE pk = ?;`,
-												time.Now(),
-												entry.PK).Error
-											log.Printf("Updated time for %s", entry.Name)
-											if err != nil {
-												log.Print("Cannot update cache with compression ", err)
-												break
-											}
-										}
-									} else {
-										log.Print(err)
-									}
+									updateTimes(gs)
 								}
 							}
 						}
@@ -275,6 +302,10 @@ func UpdateThread() {
 			}()
 		}
 
+		torController := os.Getenv("TOR_CONTOLLER")
+		if torController != "" {
+			changeExitNode(torController)
+		}
 		time.Sleep(time.Minute)
 	}
 }

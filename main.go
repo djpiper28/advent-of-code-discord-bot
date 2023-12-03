@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strings"
@@ -26,6 +28,15 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	proxy := os.Getenv("PROXY")
+	if proxy != "" {
+		url, err := url.Parse(proxy)
+		if err != nil {
+			log.Fatalf("Cannot create proxy with url %s", err)
+		}
+		http.ProxyURL(url)
 	}
 
 	// Setup database
