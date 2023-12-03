@@ -283,6 +283,11 @@ func UpdateThread() {
 					}
 				}()
 
+				torController := os.Getenv("TOR_CONTOLLER")
+				if torController != "" {
+					changeExitNode(torController)
+				}
+
 				// Get all guilds
 				var guilds []GuildSettings
 				db := db.Model(&GuildSettings{})
@@ -320,11 +325,6 @@ func UpdateThread() {
 					}
 				}
 			}()
-		}
-
-		torController := os.Getenv("TOR_CONTOLLER")
-		if torController != "" {
-			changeExitNode(torController)
 		}
 		time.Sleep(time.Minute)
 	}
