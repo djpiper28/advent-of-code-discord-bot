@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 	"runtime"
 	"strings"
@@ -32,12 +30,7 @@ func main() {
 
 	proxy := os.Getenv("PROXY")
 	if proxy != "" {
-		url, err := url.Parse(proxy)
-		if err != nil {
-			log.Fatalf("Cannot create proxy with url %s", err)
-		}
-		log.Printf("Using %s as a proxy", url)
-		http.ProxyURL(url)
+    os.Setenv("HTTP_PROXY", proxy)
 	}
 
 	// Setup database
