@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -112,6 +113,13 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	}
 
 	resp, err := client.Get(url_s)
+	if err != nil {
+		return []LeaderboardEntry{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return []LeaderboardEntry{}, errors.New(fmt.Sprint("Expected 200 code, got %d (%s)", resp.StatusCode, resp.Status))
+	}
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
