@@ -28,12 +28,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	proxy := os.Getenv("PROXY")
-	if proxy != "" {
-    log.Print("Proxy enabled")
-    os.Setenv("HTTP_PROXY", proxy)
-	}
-
 	// Setup database
 	log.Println("Connecting to the database")
 	databaseUrl := os.Getenv("DATABASE_URL")

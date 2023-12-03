@@ -99,6 +99,18 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	jar.SetCookies(url, []*http.Cookie{&cookie})
 
 	client := http.Client{Jar: jar}
+	proxy := os.Getenv("PROXY")
+	if proxy != "" {
+		log.Print("Proxy enabled")
+		proxyUrl, err := url.Parse(proxy)
+		if err != nil {
+			log.Print("Cannot setup proxy")
+		} else {
+			client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+			client.Timeout = time.Second * 10
+		}
+	}
+
 	resp, err := client.Get(url_s)
 
 	bytes, err := io.ReadAll(resp.Body)
