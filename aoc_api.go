@@ -101,7 +101,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	client := http.Client{Jar: jar}
 	proxy := os.Getenv("PROXY")
 	if proxy != "" {
-		log.Print("Proxy enabled")
+		log.Printf("Proxy setup to use %s", proxy)
 		proxyUrl, err := url.Parse(proxy)
 		if err != nil {
 			log.Print("Cannot setup proxy")
