@@ -36,6 +36,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Cannot create proxy with url %s", err)
 		}
+		log.Printf("Using %s as a proxy", url)
 		http.ProxyURL(url)
 	}
 
