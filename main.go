@@ -30,6 +30,7 @@ func main() {
 
 	proxy := os.Getenv("PROXY")
 	if proxy != "" {
+    log.Print("Proxy enabled")
     os.Setenv("HTTP_PROXY", proxy)
 	}
 
