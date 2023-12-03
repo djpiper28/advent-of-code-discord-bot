@@ -118,7 +118,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return []LeaderboardEntry{}, errors.New(fmt.Sprint("Expected 200 code, got %d (%s)", resp.StatusCode, resp.Status))
+		return []LeaderboardEntry{}, errors.New(fmt.Sprintf("Expected 200 code, got %d (%s)", resp.StatusCode, resp.Status))
 	}
 
 	bytes, err := io.ReadAll(resp.Body)
