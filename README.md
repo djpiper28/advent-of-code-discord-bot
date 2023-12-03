@@ -9,6 +9,7 @@ Instead of doing advent of code I did this. idk why.
 METRICS_SERVER=localhost:6563
 DATABASE_URL=postgres:// ...
 BOT_TOKEN=my discord bot token
+ENABLE_POLLING=true
 ```
 
 ## Postgres?
