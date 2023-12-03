@@ -246,11 +246,27 @@ func UpdateThread() {
 								log.Print("Polling indicates update is needed for: ", gs.BoardCode)
 								_, err := updateLeaderBoard(gs)
 
+								// On update failure, update the times
 								if err != nil {
 									log.Print(err)
 								} else {
-									// Tag as queried
-									guildsuniq[gs.BoardCode] = gs
+									entriesraw, err := getMostRecentEntriesNoTimeLimit(gs)
+									if err == nil {
+										for _, entry := range entriesraw {
+											err = db.Exec(`UPDATE leaderboard_entries
+                      SET time = ?
+                      WHERE pk = ?;`,
+												time.Now(),
+												entry.PK).Error
+											log.Printf("Updated time for %s", entry.Name)
+											if err != nil {
+												log.Print("Cannot update cache with compression ", err)
+												break
+											}
+										}
+									} else {
+										log.Print(err)
+									}
 								}
 							}
 						}
