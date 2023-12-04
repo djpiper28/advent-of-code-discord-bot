@@ -2,17 +2,21 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/wybiral/torgo"
 )
 
-// / This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
+// This cookie jar is from https://stackoverflow.com/questions/12756782/go-http-post-and-use-cookies
 type Jar struct {
 	lk      sync.Mutex
 	cookies map[string][]*http.Cookie
@@ -29,8 +33,8 @@ func NewJar() *Jar {
 // on the jar's policy and implementation.
 func (jar *Jar) SetCookies(u *url.URL, cookies []*http.Cookie) {
 	jar.lk.Lock()
+	defer jar.lk.Unlock()
 	jar.cookies[u.Host] = cookies
-	jar.lk.Unlock()
 }
 
 // Cookies returns the cookies to send in a request for the given URL.
@@ -57,13 +61,13 @@ func getMostRecentEntriesNoTimeLimit(gs GuildSettings) ([]LeaderboardEntry, erro
 
 func getMostRecentEntries(gs GuildSettings) ([]LeaderboardEntry, error) {
 	db := db.Model(&LeaderboardEntry{})
-	fifteenMinsAgo := time.Now().Add(-15 * time.Minute)
+	twentyMinsAgo := time.Now().Add(-20 * time.Minute)
 
 	var ret []LeaderboardEntry
 	db = db.Raw(`SELECT DISTINCT ON (board_code, id) name, stars, score, time, pk, id, board_code 
     FROM leaderboard_entries
     WHERE board_code = ? AND time >= ? 
-    ORDER BY board_code, id, time DESC;`, gs.BoardCode, fifteenMinsAgo).Scan(&ret)
+    ORDER BY board_code, id, time DESC;`, gs.BoardCode, twentyMinsAgo).Scan(&ret)
 	if db.Error != nil {
 		return nil, db.Error
 	}
@@ -96,7 +100,26 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	jar.SetCookies(url, []*http.Cookie{&cookie})
 
 	client := http.Client{Jar: jar}
+	proxy := os.Getenv("PROXY")
+	if proxy != "" {
+		log.Printf("Proxy setup to use %s", proxy)
+		proxyUrl, err := url.Parse(proxy)
+		if err != nil {
+			log.Print("Cannot setup proxy")
+		} else {
+			client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+			client.Timeout = time.Second * 10
+		}
+	}
+
 	resp, err := client.Get(url_s)
+	if err != nil {
+		return []LeaderboardEntry{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return []LeaderboardEntry{}, errors.New(fmt.Sprintf("Expected 200 code, got %d (%s)", resp.StatusCode, resp.Status))
+	}
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -207,6 +230,47 @@ func GetProfile(name string, gs GuildSettings) ([]LeaderboardEntry, error) {
 	return ret, db.Error
 }
 
+func changeExitNode(torController string) error {
+	log.Print("Connecting to Tor controller")
+	controller, err := torgo.NewController(torController)
+	if err != nil {
+		return err
+	}
+
+	err = controller.AuthenticateNone()
+	if err != nil {
+		return err
+	}
+
+	log.Print("Sending Tor signal to get new circuits")
+	err = controller.Signal("NEWNYM")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Updates the last updated times for a guild
+func updateTimes(gs GuildSettings) {
+	entriesraw, err := getMostRecentEntriesNoTimeLimit(gs)
+	if err == nil {
+		for _, entry := range entriesraw {
+			err = db.Exec(`UPDATE leaderboard_entries
+                      SET time = ?
+                      WHERE pk = ?;`,
+				time.Now(),
+				entry.PK).Error
+			log.Printf("Updated time for %s", entry.Name)
+			if err != nil {
+				log.Print("Cannot update cache with compression ", err)
+				break
+			}
+		}
+	} else {
+		log.Print(err)
+	}
+}
+
 func UpdateThread() {
 	// Fetch all unique boards, then update them
 	for true {
@@ -218,6 +282,11 @@ func UpdateThread() {
 						log.Print(err)
 					}
 				}()
+
+				torController := os.Getenv("TOR_CONTOLLER")
+				if torController != "" {
+					changeExitNode(torController)
+				}
 
 				// Get all guilds
 				var guilds []GuildSettings
@@ -245,11 +314,10 @@ func UpdateThread() {
 								log.Print("Polling indicates update is needed for: ", gs.BoardCode)
 								_, err := updateLeaderBoard(gs)
 
+								// On update failure, update the times
 								if err != nil {
 									log.Print(err)
-								} else {
-									// Tag as queried
-									guildsuniq[gs.BoardCode] = gs
+									updateTimes(gs)
 								}
 							}
 						}
@@ -257,7 +325,6 @@ func UpdateThread() {
 				}
 			}()
 		}
-
-		time.Sleep(time.Second)
+		time.Sleep(time.Minute)
 	}
 }
