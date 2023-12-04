@@ -24,7 +24,7 @@ func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var leaderboardEntries int64
-	db = db.Model(&LeaderboardEntry{}).Select("count (*)").Count(&leaderboardEntries)
+	db = db.Model(&LeaderboardEntry{}).Select("count(distinct(pk))").Count(&leaderboardEntries)
 	if db.Error != nil {
 		log.Println("Cannot get leaderboard entries metric")
 		w.Write(metricsErrorMessage)
