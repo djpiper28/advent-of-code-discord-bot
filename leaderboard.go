@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/Goscord/goscord/discord"
-	"github.com/Goscord/goscord/discord/embed"
 	"log"
 	"sort"
+
+	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/discord/embed"
 )
 
 type LeaderboardCommand struct{}
@@ -62,11 +63,15 @@ func (c *LeaderboardCommand) Execute(ctx *Context) bool {
 			icon = "third_place"
 		}
 
+		name := entry.Name
+		if entry.Name == "" {
+			name = fmt.Sprintf("(Anonymous #%d)", entry.ID)
+		}
 		message += fmt.Sprintf("`% 4d` :%s: `% 3d` :star: **%s**\n",
 			entry.Score,
 			icon,
 			entry.Stars,
-			entry.Name)
+			name)
 	}
 
 	e.SetTitle("Advent of Code Leaderboard")
