@@ -128,6 +128,6 @@ func main() {
 	if strings.ToLower(os.Getenv("ENABLE_POLLING")) == "true" {
 		log.Println("Polling enabled")
 		go UpdateThread()
-		select {}
 	}
+	select {}
 }
