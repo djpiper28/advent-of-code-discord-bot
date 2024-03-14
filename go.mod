@@ -6,6 +6,7 @@ require (
 	github.com/Goscord/goscord v0.0.0-20220904014649-8e274d13b9ec
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
+	github.com/wybiral/torgo v0.0.0-20201209223426-5fd9910eab31
 	gonum.org/v1/plot v0.12.0
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.2
@@ -24,13 +25,12 @@ require (
 	github.com/jackc/pgconn v1.13.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgproto3/v2 v2.3.1 // indirect
+	github.com/jackc/pgproto3/v2 v2.3.3 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.12.0 // indirect
 	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
-	github.com/wybiral/torgo v0.0.0-20201209223426-5fd9910eab31 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
