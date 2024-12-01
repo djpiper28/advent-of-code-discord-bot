@@ -15,17 +15,17 @@ var cacheMisses int
 
 func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 	var guildCount int64
-	db := db.Model(&GuildSettings{}).Count(&guildCount)
-	if db.Error != nil {
-		log.Println("Cannot get guild count metric", db.Error)
+	model := db.Model(&GuildSettings{}).Select("count (*)").Count(&guildCount)
+	if model.Error != nil {
+		log.Println("Cannot get guild count metric", model.Error)
 		w.Write(metricsErrorMessage)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var leaderboardEntries int64
-	db = db.Model(&LeaderboardEntry{}).Count(&leaderboardEntries)
-	if db.Error != nil {
+	model = db.Model(&LeaderboardEntry{}).Select("count(distinct(pk))").Count(&leaderboardEntries)
+	if model.Error != nil {
 		log.Println("Cannot get leaderboard entries metric")
 		w.Write(metricsErrorMessage)
 		w.WriteHeader(http.StatusInternalServerError)
