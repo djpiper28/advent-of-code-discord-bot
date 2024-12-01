@@ -19,7 +19,7 @@ func (c *ProfileCommand) Name() string {
 }
 
 func (c *ProfileCommand) Description() string {
-	return "View the profile of a user and, see their rank over time for!"
+	return "View the profile of a user, and see their rank over time for!"
 }
 
 func (c *ProfileCommand) Category() string {

@@ -16,7 +16,7 @@ func (c *SetupCommand) Name() string {
 }
 
 func (c *SetupCommand) Description() string {
-	return "Setup and, reconfigure your advent of code leaderboard bot for this guild."
+	return "Setup, and reconfigure your advent of code leaderboard bot for this guild."
 }
 
 func (c *SetupCommand) Category() string {
@@ -32,7 +32,7 @@ func (c *SetupCommand) Options() []*discord.ApplicationCommandOption {
 		{
 			Type:        discord.ApplicationCommandOptionString,
 			Name:        __SESSION_KEY,
-			Description: "Your advent of code session key, this is used to fetch your leaderboard and, nothing else. Use /help",
+			Description: "Your advent of code session key, this is used to fetch your leaderboard, and nothing else. Use /help",
 			Required:    true,
 		},
 		{

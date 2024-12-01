@@ -12,7 +12,7 @@ func (c *HelpCommand) Name() string {
 }
 
 func (c *HelpCommand) Description() string {
-	return "Shows help about the AOC bot and, how to set it up and, use it."
+	return "Shows help about the AOC bot, and how to set it up, and use it."
 }
 
 func (c *HelpCommand) Category() string {
@@ -34,7 +34,7 @@ In order to setup the bot you need
  3. Use /setup, you need Admnistrator permissions to do this
 
 **Privacy**
-Data is stored in a database and, cannot be accessed externally, all data is not shared.`)
+Data is stored in a database, and cannot be accessed externally, all data is not shared.`)
 	e.SetThumbnail(ctx.interaction.Member.User.AvatarURL())
 	ThemeEmbed(e, ctx)
 

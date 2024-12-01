@@ -16,7 +16,7 @@ func (c *LeaderboardCommand) Name() string {
 }
 
 func (c *LeaderboardCommand) Description() string {
-	return "View the advent of code leaderboard and, marvel at your high rank!"
+	return "View the advent of code leaderboard, and marvel at your high rank!"
 }
 
 func (c *LeaderboardCommand) Category() string {

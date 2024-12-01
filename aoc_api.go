@@ -202,7 +202,7 @@ func updateLeaderBoard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	return ret, err
 }
 
-// / This will update a leaderboard and, return the (inserted) leadboard entry
+// This will update a leaderboard, and return the (inserted) leadboard entry
 func GetLeaderboard(gs GuildSettings) ([]LeaderboardEntry, error) {
 	// Get cache
 	cache, err := getMostRecentEntries(gs)
