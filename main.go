@@ -25,7 +25,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+    log.Println("Using defined env vars only", err)
 	}
 
 	// Setup database
