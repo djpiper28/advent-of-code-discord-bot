@@ -12,8 +12,8 @@ WORKDIR /home/app
 USER app
 
 EXPOSE 6563
-ENV METRICS_SERVER=localhost:6563
 
+ENV METRICS_SERVER=localhost:6563
 ENV DATABASE_URL="postgres://CHANGE_ME"
 ENV BOT_TOKEN="my discord bot token"
 ENV ENABLE_POLLING=true
